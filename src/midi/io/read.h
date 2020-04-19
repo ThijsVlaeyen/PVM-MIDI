@@ -21,6 +21,14 @@ namespace io
 		read_to(in, foo);
 		return *foo;
 	}
+
+	template<typename T, typename std::enable_if<std::is_fundamental<T>::value, T>::type * = nullptr>
+	std::unique_ptr<T[]> read_array(std::istream& in, size_t n)
+	{
+		auto bar = std::make_unique<T[]>(n);
+		read_to(in, bar.get(), n);
+		return std::move(bar);
+	}
 }
 
 #endif
