@@ -57,6 +57,9 @@
     <ClInclude Include="io\endianness.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="io\read.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp">
@@ -87,6 +90,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tests\01-io\01-endianness-tests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\01-io\02-read-to-tests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="io\read.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tests\01-io\03-read-tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
