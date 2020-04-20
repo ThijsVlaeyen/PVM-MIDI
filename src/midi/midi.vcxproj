@@ -236,7 +236,16 @@
     <ClCompile Include="logging.cpp" />
     <ClCompile Include="midi\primitives.cpp" />
     <ClCompile Include="shell\command-line-parser.cpp" />
+    <ClCompile Include="tests\01-io\01-endianness-tests.cpp" />
+    <ClCompile Include="tests\01-io\02-read-to-tests.cpp" />
+    <ClCompile Include="tests\01-io\03-read-tests.cpp" />
+    <ClCompile Include="tests\01-io\04-read-array-tests.cpp" />
+    <ClCompile Include="tests\01-io\05-read-variable-length-integer-tests.cpp" />
+    <ClCompile Include="tests\02-midi\01-primitives\01-channel-tests.cpp" />
+    <ClCompile Include="tests\02-midi\01-primitives\02-channel-show-tests.cpp" />
+    <ClCompile Include="tests\02-midi\01-primitives\03-instruments-tests.cpp" />
     <ClCompile Include="tests\02-midi\01-primitives\04-note-number-tests.cpp" />
+    <ClCompile Include="tests\02-midi\01-primitives\05-time-tests.cpp" />
     <ClCompile Include="tests\tests.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
