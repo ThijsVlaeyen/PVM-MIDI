@@ -1,36 +1,44 @@
 #include "primitives.h"
 
-midi::Duration midi::Duration::operator +(const midi::Duration& d) const {
-	return midi::Duration(value(*this) + value(d));
-}
-
-midi::Time midi::Time::operator +(const midi::Duration& d) const {
-	return midi::Time(value(*this) + value(d));
-}
-
-midi::Time midi::Duration::operator +(const midi::Time& t) const {
-	return midi::Time(value(*this) + value(t));
-}
-
-midi::Duration midi::Time::operator -(const midi::Time& t) const {
-	return midi::Duration(value(*this) - value(t));
-}
-
-midi::Duration midi::Duration::operator -(const midi::Duration& d) const {
-	return midi::Duration(value(*this) - value(d));
-}
-
-midi::Time& midi::Time::operator +=(const midi::Duration& d)
+midi::Duration midi::operator +(const midi::Duration& x, const midi::Duration& y)
 {
-	return *this = *this + d;
+	return midi::Duration(value(x) + value(y));
 }
 
-midi::Duration& midi::Duration::operator +=(const midi::Duration& r)
+midi::Time midi::operator+(const midi::Time& x, const midi::Duration& y)
 {
-	return *this = *this + r;
+	return midi::Time(value(x) + value(y));
 }
 
-midi::Duration& midi::Duration::operator -=(const midi::Duration& r)
+midi::Time midi::operator+(const midi::Duration& x, const midi::Time& y)
 {
-	return *this = *this - r;
+	return midi::Time(value(x) + value(y));
+}
+
+midi::Duration midi::operator -(const midi::Time& x, const midi::Time& y)
+{
+	return midi::Duration(value(x) - value(y));
+}
+
+midi::Duration midi::operator-(const midi::Duration& x, const midi::Duration& y)
+{
+	return midi::Duration(value(x) - value(y));
+}
+
+midi::Time& midi::operator+=(midi::Time& x, const midi::Duration& y)
+{
+	x = x + y;
+	return x;
+}
+
+midi::Duration& midi::operator+=(midi::Duration& x, const midi::Duration& y)
+{
+	x = x + y;
+	return x;
+}
+
+midi::Duration& midi::operator-=(midi::Duration& x, const midi::Duration& y)
+{
+	x = x - y;
+	return x;
 }
