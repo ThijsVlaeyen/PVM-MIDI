@@ -88,3 +88,112 @@ bool midi::is_pitch_wheel_change(uint8_t status)
 {
 	return status == midi::midi_event::pitch_wheel_change;
 }
+
+void midi::read_mtrk(std::istream& in, midi::EventReceiver& er)
+{
+	char id[4];
+	io::read_to(in, &id);
+	CHECK(strcmp(id, "MTrk") != 0);
+
+	uint32_t chunk_length = io::read<uint32_t>(in);
+	io::switch_endianness(&chunk_length);
+
+	uint8_t identifier;
+	while (true)
+	{
+		midi::Duration delta_time = midi::Duration(io::read_variable_length_integer(in));
+
+		if (!is_running_status(static_cast<uint8_t>(in.peek())))
+			identifier = io::read<uint8_t>(in);
+
+		if (is_meta_event(identifier))
+		{
+			uint8_t type = io::read<uint8_t>(in);
+			uint64_t data_size = io::read_variable_length_integer(in);
+			auto data = io::read_array<uint8_t>(in, data_size);
+
+			er.meta(delta_time, type, std::move(data), data_size);
+
+			if (type == 0x2F)
+				break;
+		}
+		else if (is_sysex_event(identifier))
+		{
+			uint64_t data_size = io::read_variable_length_integer(in);
+			auto data = io::read_array<uint8_t>(in, data_size);
+
+			er.sysex(delta_time, std::move(data), data_size);
+		}
+		else if (is_midi_event(identifier))
+		{
+			// identifier == status for midi events
+			midi::Channel channel = extract_midi_event_channel(identifier);
+			uint8_t midi_event_type = extract_midi_event_type(identifier);
+
+			if (is_note_off(midi_event_type))
+			{
+				midi::NoteNumber note = midi::NoteNumber(io::read<uint8_t>(in));
+				uint8_t velocity = io::read<uint8_t>(in);
+
+				er.note_off(delta_time, channel, note, velocity);
+			}
+			else if (is_note_on(midi_event_type))
+			{
+				midi::NoteNumber note = midi::NoteNumber(io::read<uint8_t>(in));
+				uint8_t velocity = io::read<uint8_t>(in);
+
+				er.note_on(delta_time, channel, note, velocity);
+			}
+			else if (is_polyphonic_key_pressure(midi_event_type))
+			{
+				midi::NoteNumber note = midi::NoteNumber(io::read<uint8_t>(in));
+				uint8_t pressure = io::read<uint8_t>(in);
+
+				er.polyphonic_key_pressure(delta_time, channel, note, pressure);
+			}
+			else if (is_control_change(midi_event_type))
+			{
+				uint8_t controller = io::read<uint8_t>(in);
+				uint8_t value = io::read<uint8_t>(in);
+
+				er.control_change(delta_time, channel, controller, value);
+			}
+			else if (is_program_change(midi_event_type))
+			{
+				midi::Instrument program = midi::Instrument(io::read<uint8_t>(in));
+
+				er.program_change(delta_time, channel, program);
+			}
+			else if (is_channel_pressure(midi_event_type))
+			{
+				uint8_t pressure = io::read<uint8_t>(in);
+
+				er.channel_pressure(delta_time, channel, pressure);
+			}
+			else if (is_pitch_wheel_change(midi_event_type))
+			{
+				uint8_t lower_bits = io::read<uint8_t>(in);
+				uint8_t upper_bits = io::read<uint8_t>(in);
+				uint16_t wheel = (upper_bits << 7) | lower_bits;
+
+				er.pitch_wheel_change(delta_time, channel, wheel);
+			}
+		}
+	}
+}
+
+std::vector<midi::NOTE> midi::read_notes(std::istream& in)
+{
+	std::vector<midi::NOTE> notes;
+
+	midi::MTHD mthd;
+	midi::read_mthd(in, &mthd);
+
+	for (uint16_t i = 0; i < mthd.ntracks; i++)
+	{
+		midi::NoteCollector collector([&notes](const midi::NOTE& note) { notes.push_back(note); });
+		midi::read_mtrk(in, collector);
+	}
+
+	return notes;
+}
